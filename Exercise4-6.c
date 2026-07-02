@@ -8,6 +8,8 @@
 #define NUMBER '0'
 #define BUFFERSIZE 100
 #define MAXVAL 100 /* maximum depth of val stack */
+#define VARCHECK 'A'
+#define VARSIZE 26
 
 int sign = 1;
 
@@ -27,9 +29,16 @@ const char* sin_c = "sin\0";
 const char* exp_c = "exp\0";
 const char* pow_c = "pow\0";
 
+double varbuffer[VARSIZE + 1];
+char varsign;
+int varcheck();
+void pushtovar(char);
+double getvar(char);
+
 int getop(char[]);
 void push(double);
 double pop(void);
+double read(void);
 
 int sp = 0;
 double val[MAXVAL];
@@ -51,8 +60,7 @@ int main()
         switch(type)
         {
             case NUMBER:
-                push(atof(s) * sign);
-                sign = 1;
+                push(atof(s));
                 break;
             case '+':
                 push(pop() + pop());
@@ -98,6 +106,12 @@ int main()
                     push(pow(pop(), op2));
                 fsign = NONE;
                 break;
+            case VARCHECK:
+                ungetch(varcheck());
+                break;
+            case 'v':
+                push(varbuffer[VARSIZE]);
+                break;
             case '?':
             case '\n':
                 if(sp == 0)
@@ -110,7 +124,7 @@ int main()
         }
     }
 
-    return 0;
+    return EXIT_SUCCESS;
 }
 
 double fmod(double x, double y)
@@ -120,7 +134,11 @@ double fmod(double x, double y)
 
 void swap()
 {
-    if(sp <= 1) puts("error: stack is empty");
+    if(sp <= 1)
+    {
+        puts("error: stack is empty");
+        return;
+    }
     double temp = val[sp-1];
     val[sp-1] = val[sp-2];
     val[sp-2] = temp;
@@ -128,15 +146,23 @@ void swap()
 
 void duplicate()
 {
-    if(sp == 0) puts("error: stack is empty");
+    if(sp == 0)
+    {
+        puts("error: stack is empty");
+        return;
+    }
     double temp = val[sp-1];
     val[sp++] = temp;
 }
 
 void clear()
 {
-    if(sp == 0) puts("error: stack is empty");
-    while((sp--) != 1);
+    if(sp == 0)
+    {
+        puts("error: stack is empty");
+        return;
+    }
+    while(sp > 0) sp--;
 }
 
 int strcheck(int c)
@@ -172,6 +198,33 @@ int strcmpr(int c, const char s[])
     return -1;
 }
 
+int varcheck()
+{
+    int c;
+    while((c = getch()) == ' ' || c == '\t');
+    if(c == '=')
+    {
+        pushtovar(varsign);
+        while((c = getch()) == ' ' || c == '\t' || c == '=');
+    }
+    else
+        push(getvar(varsign));
+
+    if(isupper(varsign = c))
+        c = varcheck();
+    return c;
+}
+
+void pushtovar(char c)
+{
+    varbuffer[VARSIZE] = varbuffer[c - 'A'] = read();
+}
+
+double getvar(char c)
+{
+    return varbuffer[c - 'A'];
+}
+
 /* getop: get next operator or numeric operand */
 int getop(char s[])
 {
@@ -182,16 +235,17 @@ int getop(char s[])
     s[1] = '\0';
     if(c == '-')
     {
-        sign = -1;
-        while((s[0] = c = getch()) == ' ' || c == '\t');
-        printf("his sp rn: %d\n", sp);
-        if(!isdigit(c))
+        s[0] = c = getch();
+        if(!isdigit(c) && !isupper(c))
         {
-            ungetch('\n');
+            ungetch(c);
             return '-';
         }
+        sign = -1;
     }
 
+    if(isupper(varsign = c))
+        return VARCHECK;
     if(islower(c))
     {
         if(strcheck(c) != -1)
@@ -219,9 +273,10 @@ int getop(char s[])
 void push(double f)
 {
     if(sp < MAXVAL)
-        val[sp++] = f;
+        varbuffer[VARSIZE] = val[sp++] = f * sign;
     else
         printf("error: stack full, can't push %g\n", f);
+    sign = 1;
 }
 
 /* pop: pop and return top value from stack */
@@ -229,6 +284,17 @@ double pop(void)
 {
     if(sp > 0)
         return val[--sp];
+    else
+    {
+        puts("error: stack empty");
+        return 0.0;
+    }
+}
+
+double read(void)
+{
+    if(sp > 0)
+        return val[sp-1];
     else
     {
         puts("error: stack empty");
