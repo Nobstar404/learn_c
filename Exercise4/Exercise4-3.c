@@ -21,8 +21,6 @@ void ungetch(int);
 char buf[BUFFERSIZE]; /* buffer for ungetch */
 int bufp = 0; /* next free position in buf */
 
-int sign = 1;
-
 int main()
 {
     int type;
@@ -34,8 +32,7 @@ int main()
         switch(type)
         {
             case NUMBER:
-                push(atof(s) * sign);
-                sign = 1;
+                push(atof(s));
                 break;
             case '+':
                 push(pop() + pop());
@@ -82,20 +79,19 @@ double fmod(double x, double y)
 /* getop: get next operator or numeric operand */
 int getop(char s[])
 {
-    int i, c;
+    int c, i = 0;
 
     while((s[0] = c = getch()) == ' ' || c == '\t')
         ;
     s[1] = '\0';
-    if(c == '-' && sp < 2)
-    {
-        sign = -1;
-        while((s[0] = c = getch()) == ' ' || c == '\t');
-    }
+
+    if(c == '-')
+        if(isdigit(c = getch()))
+            ungetch(c);
 
     if(!isdigit(c) && c != '.')
         return c; /* not number */
-    i = 0;
+
     if(isdigit(c)) /* collect integer part */
         while (isdigit(s[++i] = c = getch()))
             ;
