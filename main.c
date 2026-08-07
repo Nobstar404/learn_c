@@ -1,21 +1,15 @@
 #include <stdio.h>
-#include <stdlib.h>
-#include <stdint.h>
 
-void* foo(int x)
+int foo()
 {
-    int* b = malloc(sizeof(int));
-    *b = x;
-    return b;
+    static int i = 0;
+    return i++;
 }
 
 int main()
 {
-    uint8_t val1 = 0b11111111;
-    int8_t val2 = 0b11111111;
-
-    printf("val1: %d\n", val1);
-    printf("val2: %d\n", val2);
+    printf("foo(): %d\n", foo());
+    printf("foo(): %d\n", foo());
 
     return 0;
 }

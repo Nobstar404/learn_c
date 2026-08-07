@@ -86,11 +86,10 @@ int getop(char s[])
     s[1] = '\0';
 
     if(c == '-')
-        if(isdigit(c = getch()))
-            ungetch(c);
+        ungetch(c  = getch());
 
     if(!isdigit(c) && c != '.')
-        return c; /* not number */
+        return s[0]; /* not number */
 
     if(isdigit(c)) /* collect integer part */
         while (isdigit(s[++i] = c = getch()))
