@@ -1,15 +1,14 @@
 #include <stdio.h>
+#include <stdint.h>
 
-int foo()
-{
-    static int i = 0;
-    return i++;
-}
 
 int main()
 {
-    printf("foo(): %d\n", foo());
-    printf("foo(): %d\n", foo());
+    int s[1024];
+    printf("s[3] = %d\n", s[3]);
+
+    for(size_t i = 0;  i < 100; i++)
+        printf("s[%zu]: %d\n", i, s[i]);
 
     return 0;
 }
