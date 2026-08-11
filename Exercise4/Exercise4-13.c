@@ -1,0 +1,93 @@
+#include <stdio.h>
+#include <string.h>
+#include <stdint.h>
+#include <limits.h>
+
+void printd(int n);
+void qsort(int v[], int left, int right);
+int itoa(int n, char s[]);
+void reverse(char s[]);
+
+int main()
+{
+    char s[1024 * 1024];
+    itoa(INT_MIN, s);
+    printf("%s\n", s);
+
+    char test[] = "radar\0";
+    reverse(test);
+    printf("%s\n", test);
+
+    return 0;
+}
+
+// printd: print n in decimal
+void printd(int n)
+{
+    if(n < 0)
+    {
+        putchar('-');
+        n = -n;
+    }
+    if(n / 10)
+        printd(n / 10);
+    putchar(n % 10 + '0');
+}
+
+void qsort(int v[], int left, int right)
+{
+    int i, last;
+    void swap(int v[], int i, int j);
+
+    if(left >= right)   /* do nothing if array contains */
+        return;         /* fewer than two elements */
+
+    swap(v, left, (left + right)/2);    /* move partition elem */
+    last = left;                        /*to v[0] */
+
+    for(i = left+1; i <= right; i++)    /* partition */
+    {
+        if(v[i] < v[left])
+            swap(v, ++last, i);
+    }
+
+    swap(v, left, last);        /* restore partition elem */
+    swap(v, left, last-1);
+    qsort(v, last+1, right);
+}
+
+void swap(int v[], int i, int j)
+{
+    int temp = v[i];
+    v[i] = v[j];
+    v[j] = temp;
+}
+
+int itoa(int value, char s[])
+{
+    int i = 0;
+    if(value < 0)
+        s[i++] = '-';
+    else
+        value = -value;
+
+    if(value / 10)
+        i = itoa(value / 10, s);
+    else
+        s[i+1] = '\0';
+    s[i++] = '0' - (value % 10);
+
+    return i;
+}
+
+void reverse(char s[])
+{
+    int temp, tail = strlen(s) - 1;
+    if(tail <= 0) return;
+    static size_t head = 0;
+
+    temp = s[head], s[head] = s[tail - head], s[tail - head] = temp;
+    head++;
+    if(head < tail - head)
+        reverse(s);
+}
