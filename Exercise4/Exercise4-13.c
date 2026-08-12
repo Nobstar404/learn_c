@@ -85,9 +85,10 @@ void reverse(char s[])
     int temp, tail = strlen(s) - 1;
     if(tail <= 0) return;
     static size_t head = 0;
+    tail -= head;
 
-    temp = s[head], s[head] = s[tail - head], s[tail - head] = temp;
+    temp = s[head], s[head] = s[tail], s[tail] = temp;
     head++;
-    if(head < tail - head)
+    if(head < tail)
         reverse(s);
 }
