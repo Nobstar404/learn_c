@@ -4,7 +4,7 @@ int strend(const char* s, const char* t);
 
 int main()
 {
-    const char* s1 = "hello 0xff";
+    const char* s1 = "hello0xff";
     const char* s2 = "0xff";
 
     printf("%d!\n", strend(s1, s2));
@@ -18,11 +18,8 @@ int strend(const char* s, const char* t)
     size_t i;
     for(i = 0; *t; i++, t++);
 
-    if(*(s-1) == *(t-1))
-    {
-        for( ; *s == *t; s--, t--, i--)
-            if(i == 0) return 1;
-    }
+    for( ; *s == *t; s--, t--, i--)
+        if(i == 0) return 1;
 
     return 0;
 }
