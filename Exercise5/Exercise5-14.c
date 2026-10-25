@@ -120,7 +120,7 @@ void Qsort(void* v[], int left, int right, int (*comp)(void*, void*), unsigned c
         return;
     swap(v, left, (left + right) / 2);
     last = left;
-    if((flags |= F_REVERSE))
+    if((flags & F_REVERSE))
     {
         for(i = left+1; i <= right; i++)
         {
